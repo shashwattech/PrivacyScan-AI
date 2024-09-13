@@ -97,7 +97,6 @@ def check_for_pii(file_content, file_name):
             # Extract PII-related information from the response
             result = response.json()
             pii_data = result['choices'][0]['message']['content']
-            print(pii_data)
             json_pattern = r'\{.*?\}'
             # Use re.search to find the first match of the JSON object
             match = re.search(json_pattern, pii_data, re.DOTALL)
@@ -106,12 +105,11 @@ def check_for_pii(file_content, file_name):
                 
                 try:
                     json_data = json.loads(json_str)
-                    print("Extracted JSON:", json_data)
                     return json_data
                 except json.JSONDecodeError:
-                    print("Invalid JSON format.")
+                    pass
             else:
-                print("No JSON object found in the string.")
+                pass
         except (KeyError, IndexError) as e:
             print(f"Error parsing response for file {file_name}: {e}")
     else:

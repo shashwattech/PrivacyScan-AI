@@ -7,13 +7,17 @@ import git
 import os
 
 # Import the style module
-import guistyles as guiStyles
+import guiStyles as guiStyles
 
 # Function to clone the repository
 def download_repo():
     repo_url = repo_url_entry.get()
-    local_dir = dir_entry_download.get()
-
+    repo_name = repo_url.split("/")[-1].replace(".git", "")
+    local_dir = os.path.join(os.getcwd(), "repos")
+    local_dir = os.path.join(local_dir, repo_name)
+    if os.path.exists(local_dir):
+        os.system(f"rm -rf {local_dir}")
+    
     if not repo_url or not local_dir:
         messagebox.showwarning("Input Error", "Please provide both repository URL and directory path.")
         return
@@ -26,6 +30,8 @@ def download_repo():
         messagebox.showinfo("Success", f"Repository cloned to {local_dir}")
     except Exception as e:
         messagebox.showerror("Error", f"Failed to clone repository: {str(e)}")
+        
+    scan_repo(local_dir)
 
 # Function to run the external Python script and update the logs in real-time
 def scan_repo(local_dir):
@@ -45,7 +51,7 @@ def run_scan_process(local_dir):
 
         # Start the subprocess to run the scan
         process = subprocess.Popen(
-            [sys.executable, "ReportScan.py", local_dir],
+            [sys.executable, "scanner.py", local_dir],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
@@ -102,26 +108,26 @@ tk.Label(tab1, text="Repository URL:").pack(pady=5)
 repo_url_entry = ttk.Entry(tab1, width=50)
 repo_url_entry.pack(pady=5)
 
-# Directory label and entry for Tab 1
-tk.Label(tab1, text="Local Directory:").pack(pady=5)
-dir_entry_download = ttk.Entry(tab1, width=50)
-dir_entry_download.pack(pady=5)
+# # Directory label and entry for Tab 1
+# tk.Label(tab1, text="Local Directory:").pack(pady=5)
+# dir_entry_download = ttk.Entry(tab1, width=50)
+# dir_entry_download.pack(pady=5)
 
-# Button to browse for directory for Tab 1
-browse_btn1 = ttk.Button(tab1, text="Browse", command=lambda: browse_directory(dir_entry_download))
-browse_btn1.pack(pady=5)
+# # Button to browse for directory for Tab 1
+# browse_btn1 = ttk.Button(tab1, text="Browse", command=lambda: browse_directory(dir_entry_download))
+# browse_btn1.pack(pady=5)
 
 # Button to download the repository for Tab 1
-download_btn = ttk.Button(tab1, text="Download Repository", command=download_repo)
+download_btn = ttk.Button(tab1, text="Scan Repository", command=download_repo)
 download_btn.pack(pady=5)
 
-# Button to scan the repository for Tab 1
-scan_btn1 = ttk.Button(tab1, text="Scan Repository", command=lambda: scan_repo(dir_entry_download.get()))
-scan_btn1.pack(pady=20)
+# # Button to scan the repository for Tab 1
+# scan_btn1 = ttk.Button(tab1, text="Scan Repository", command=lambda: scan_repo(dir_entry_download.get()))
+# scan_btn1.pack(pady=20)
 
 # Apply hover effect on the buttons
 guiStyles.apply_button_hover_effect(download_btn)
-guiStyles.apply_button_hover_effect(scan_btn1)
+# guiStyles.apply_button_hover_effect(scan_btn1)
 
 ### --- Tab 2: Scan Local Directory --- ###
 
