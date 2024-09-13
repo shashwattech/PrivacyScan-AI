@@ -7,7 +7,7 @@ import git
 import os
 
 # Import the style module
-import guiStyles
+import guistyles as guiStyles
 
 # Function to clone the repository
 def download_repo():

@@ -1,8 +1,9 @@
 import os
-import requests
-import json
-import re
 import sys
+import requests
+import time
+import re
+import json
 
 # OpenAI API configurations
 API_KEY = "9d5bcffba65648fcafc63d8a95a06c83"  # Replace with your actual API key
@@ -11,7 +12,7 @@ ENDPOINT = "https://sdk-team-opnai-eus-poc.openai.azure.com/openai/deployments/g
 def is_not_code_file(filename):
     _, file_extension = os.path.splitext(filename)
     
-    if file_extension not in ['.java', '.cpp', '.py', '.go']:
+    if file_extension not in ['.java', '.cpp', '.py', '.go', '.txt']:
         return True 
     else:
         return False
@@ -20,6 +21,8 @@ def is_not_code_file(filename):
 def scan_folder_for_pii(directory):
     pii_report = []
     
+    print(f"Starting scan in directory: {directory}", flush=True)
+    
     # Walk through the folder and its subfolders
     for root, dirs, files in os.walk(directory):
         for file_name in files:
@@ -27,25 +30,24 @@ def scan_folder_for_pii(directory):
 
             # Skip binary files
             if is_not_code_file(file_path):
-                print(f"Skipping binary file: {file_name}")
+                print(f"Skipping binary file: {file_name}", flush=True)
                 continue
 
             # Open and read the content of the file
             try:
                 with open(file_path, 'r', encoding='utf-8') as file:
                     file_content = file.read()
-                    print(f"Reading the file:: {file_name}")
+                    print(f"Reading the file:: {file_name}", flush=True)
             except UnicodeDecodeError:
                 # Handle files that cannot be read as UTF-8 by trying another encoding or skipping
                 try:
                     with open(file_path, 'r', encoding='ISO-8859-1') as file:
-                        print(f"Reading the file after decrypting:: {file_name}")
+                        print(f"Reading the file after decrypting:: {file_name}", flush=True)
                         file_content = file.read()
                 except Exception as e:
-                    print(f"Error reading file {file_name}: {str(e)}")
+                    print(f"Error reading file {file_name}: {str(e)}", flush=True)
                     continue  # Skip the file if it can't be read
 
-            # Check for PII in the file content
             pii_data = check_for_pii(file_content, file_name)
             if pii_data:
                 pii_report.append({
@@ -86,8 +88,7 @@ def check_for_pii(file_content, file_name):
     ],
     "max_tokens": 1000,
     "temperature": 0.3  # Lower temperature for more deterministic output
-}
-
+    }
 
     response = requests.post(ENDPOINT, headers=headers, json=data)
 
@@ -100,7 +101,6 @@ def check_for_pii(file_content, file_name):
             json_pattern = r'\{.*?\}'
             # Use re.search to find the first match of the JSON object
             match = re.search(json_pattern, pii_data, re.DOTALL)
-
             if match:
                 json_str = match.group(0)
                 
@@ -112,10 +112,6 @@ def check_for_pii(file_content, file_name):
                     print("Invalid JSON format.")
             else:
                 print("No JSON object found in the string.")
-            # extract json from above text where json can exist at any place in the text
-            
-
-            
         except (KeyError, IndexError) as e:
             print(f"Error parsing response for file {file_name}: {e}")
     else:
@@ -123,6 +119,7 @@ def check_for_pii(file_content, file_name):
 
     return None
 
+json_response = []
 # Function to generate a report for PII data
 def generate_report(pii_report):
     report_path = "pii_report.txt"
@@ -135,7 +132,10 @@ def generate_report(pii_report):
 
     print(f"PII report generated at: {report_path}")
 
-# Main function
 if __name__ == "__main__":
-    arg = sys.argv[1]
-    scan_folder_for_pii(arg)
+    if len(sys.argv) != 2:
+        print("Usage: python scan_script.py <directory>")
+        sys.exit(1)
+
+    folder_path = sys.argv[1]
+    scan_folder_for_pii(folder_path)
