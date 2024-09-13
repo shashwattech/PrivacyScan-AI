@@ -5,6 +5,7 @@ import threading
 import sys
 import git
 import os
+import webbrowser
 
 # Import the style module
 import guiStyles as guiStyles
@@ -27,7 +28,7 @@ def download_repo():
 
     try:
         git.Repo.clone_from(repo_url, local_dir)
-        messagebox.showinfo("Success", f"Repository cloned to {local_dir}")
+        # messagebox.showinfo("Success", f"Repository cloned to {local_dir}")
     except Exception as e:
         messagebox.showerror("Error", f"Failed to clone repository: {str(e)}")
         
@@ -67,9 +68,10 @@ def run_scan_process(local_dir):
         process.stdout.close()
         process.wait()
 
-        # Trigger success message in a separate thread to avoid blocking the main thread
+        # Trigger success message and enable report button
         if process.returncode == 0:
             threading.Thread(target=lambda: messagebox.showinfo("Scan Completed", "The scan has been completed successfully."), daemon=True).start()
+            open_report_btn.config(state=tk.NORMAL)  # Enable the button to open the report
         else:
             threading.Thread(target=lambda: messagebox.showerror("Error", "An error occurred during scanning."), daemon=True).start()
 
@@ -82,12 +84,37 @@ def browse_directory(entry):
     entry.delete(0, tk.END)
     entry.insert(0, dir_path)
 
+def open_report():
+    """Open the report file when the button is clicked."""
+    report_path = os.path.join(os.getcwd(), "pii_report.txt")
+    if os.path.exists(report_path):
+        # Open the report file with the default application
+        try:
+            if sys.platform == "win32":
+                os.startfile(report_path)  # For Windows
+            else:
+                subprocess.call(['open', report_path])  # For macOS
+                # Use 'xdg-open' for Linux
+                # subprocess.call(['xdg-open', report_path])  
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to open report: {str(e)}")
+    else:
+        messagebox.showwarning("File Not Found", "The report file does not exist.")
+
+def open_hyperlink(url):
+    webbrowser.open_new(url)
+
 # Main window setup
 root = tk.Tk()
 root.title("PrivacyScan AI")
 
 # Apply styles from the separate file
 guiStyles.apply_styles(root)
+
+header_frame = ttk.Frame(root)
+header_frame.pack(fill=tk.X, pady=10)
+header_label = ttk.Label(header_frame, text="Privacy Scan AI", font=("Helvetica", 18, "bold"))
+header_label.pack(pady=10)
 
 # Create Notebook (tabs)
 notebook = ttk.Notebook(root)
@@ -108,22 +135,9 @@ tk.Label(tab1, text="Repository URL:").pack(pady=5)
 repo_url_entry = ttk.Entry(tab1, width=50)
 repo_url_entry.pack(pady=5)
 
-# # Directory label and entry for Tab 1
-# tk.Label(tab1, text="Local Directory:").pack(pady=5)
-# dir_entry_download = ttk.Entry(tab1, width=50)
-# dir_entry_download.pack(pady=5)
-
-# # Button to browse for directory for Tab 1
-# browse_btn1 = ttk.Button(tab1, text="Browse", command=lambda: browse_directory(dir_entry_download))
-# browse_btn1.pack(pady=5)
-
 # Button to download the repository for Tab 1
 download_btn = ttk.Button(tab1, text="Scan Repository", command=download_repo)
 download_btn.pack(pady=5)
-
-# # Button to scan the repository for Tab 1
-# scan_btn1 = ttk.Button(tab1, text="Scan Repository", command=lambda: scan_repo(dir_entry_download.get()))
-# scan_btn1.pack(pady=20)
 
 # Apply hover effect on the buttons
 guiStyles.apply_button_hover_effect(download_btn)
@@ -152,5 +166,28 @@ guiStyles.apply_button_hover_effect(scan_btn2)
 # Text widget to display script output (logs) common to both tabs
 output_text = tk.Text(root, height=15, width=80)
 output_text.pack(pady=10, padx=10)
+
+### --- Button to Open Report --- ###
+# Button to open the report, initially disabled
+open_report_btn = ttk.Button(root, text="Open Report", state=tk.DISABLED, command=open_report)
+open_report_btn.pack(pady=10)
+
+### --- Footer with Hyperlink --- ###
+footer_frame = ttk.Frame(root)
+footer_frame.pack(fill=tk.X, pady=10)
+
+# Create Text widget for the footer
+footer_text = tk.Text(footer_frame, height=1, width=40, borderwidth=0, background=root.cget('background'))
+footer_text.pack()
+
+# Disable editing in the Text widget
+footer_text.config(state=tk.NORMAL)
+footer_text.insert(tk.END, "© Hackathon 2024 | ")
+footer_text.insert(tk.END, "Q2 Software Inc.", "hyperlink")
+footer_text.config(state=tk.DISABLED)
+
+# Tag the hyperlink
+footer_text.tag_config("hyperlink", underline=True)
+footer_text.tag_bind("hyperlink", "<Button-1>", lambda e: open_hyperlink("https://www.q2.com/"))
 
 root.mainloop()
