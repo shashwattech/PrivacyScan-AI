@@ -2,9 +2,7 @@
 
 ## Authors
 
--**Shashwat Srivastava**
-
--**Saurabh Kumar**
+- **Shashwat Srivastava**
 
 ## Overview
 
@@ -12,19 +10,24 @@ PrivacyScan AI is a tool designed to scan repositories and directories for poten
 
 ## Features
 
-- Clone and scan GitHub repositories directly from the GUI
-- Real-time progress updates during scans
-- User-friendly interface with tabbed navigation
-- Automatic detection of various types of PII including phone numbers, names, email addresses, and dates of birth
+- Clone and scan GitHub repositories directly from the GUI  
+- Real-time progress updates during scans  
+- User-friendly interface with tabbed navigation  
+- Automatic detection of various types of PII including phone numbers, names, email addresses, and dates of birth  
 
 ## Installation
 
 To use PrivacyScan AI, you'll need to have Python installed on your system. The recommended way to install the required dependencies is via pip:
 
-```pip install -r requirements.txt```
+```bash
+pip install -r requirements.txt
+```
 
+Additionally:
 
-Additionally, you'll need to obtain an OpenAI API key for the PII detection functionality. Please replace API_KEY in scanner.py with your actual API key before using the tool.
+- **Obtain an OpenAI API key** for the PII detection functionality.  
+- **Replace the `API_KEY` in `scanner.py` with your actual key.**  
+- **Replace any ChatGPT/OpenAI endpoints in `scanner.py` if using a custom or alternate LLM deployment.**
 
 ## Usage
 
@@ -32,8 +35,9 @@ Additionally, you'll need to obtain an OpenAI API key for the PII detection func
 
 You can run the scan using the command-line interface:
 
-```python download-repo.py <repository-url>```
-
+```bash
+python download-repo.py <repository-url>
+```
 
 This will clone the specified repository and perform a scan.
 
@@ -42,22 +46,20 @@ This will clone the specified repository and perform a scan.
 Alternatively, you can use the graphical user interface:
 
 1. Run the frontend application:
-python tkinterfrontend.py
-
+   ```bash
+   python tkinterfrontend.py
+   ```
 2. Choose between scanning a GitHub repository or a local directory.
-
 3. Enter the required details and click "Scan Local Directory".
-
 4. Wait for the scan to complete and view the results in the log window.
-
-5. View the report by clicking on the Open Report button.
+5. View the report by clicking on the **Open Report** button.
 
 ## How It Works
 
-1. The download-repo.py script handles cloning repositories from GitHub URLs.
-2. The scanner.py module contains the core scanning logic, utilizing OpenAI's API to detect PII.
-3. The tkinterfrontend.py provides a graphical interface for users to interact with the tool.
-4. The frontend.py script combines the functionality of download-repo.py and tkinterfrontend.py.
+1. `download-repo.py` handles cloning repositories from GitHub URLs.  
+2. `scanner.py` contains the core scanning logic, utilizing OpenAI's API (or another LLM endpoint) to detect PII.  
+3. `tkinterfrontend.py` provides a graphical interface for users to interact with the tool.  
+4. `frontend.py` combines the functionality of `download-repo.py` and `tkinterfrontend.py`.
 
 ## Contributing
 
