@@ -6,7 +6,7 @@ import re
 import json
 
 # OpenAI API configurations
-API_KEY = "your-llm-api-key"  # Replace with your actual API key
+API_KEY = "your-llm-api-key-9d5bcffba6cafc63d8a95a06c83"  # Replace with your actual API key
 ENDPOINT = "https://shashwat-team-opnai-eus-poc.openai.azure.com/openai/deployments/gpt-4o/chat/get-your-own-endpoint" # replace with the actual endpoint
 
 def is_not_code_file(filename):
@@ -137,4 +137,5 @@ if __name__ == "__main__":
 
     folder_path = sys.argv[1]
     scan_folder_for_pii(folder_path)
+
 
